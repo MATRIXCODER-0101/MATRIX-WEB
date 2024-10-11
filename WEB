@@ -1,0 +1,162 @@
+import { useState, useEffect, useRef } from 'react'
+import { Github, Facebook, Twitter, Instagram } from 'lucide-react'
+
+export default function Component() {
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const [messages, setMessages] = useState([
+    { text: "Welcome to our site, if you need help simply reply to this message, we are online and ready to help.", isBot: true }
+  ])
+  const [inputMessage, setInputMessage] = useState("")
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    const fontSize = 10
+    const columns = canvas.width / fontSize
+
+    const drops: number[] = []
+    for (let i = 0; i < columns; i++) {
+      drops[i] = 1
+    }
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      ctx.fillStyle = '#0f0'
+      ctx.font = `${fontSize}px monospace`
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = Math.random() > 0.5 ? '1' : '0'
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize)
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0
+        }
+        drops[i]++
+      }
+    }
+
+    const interval = setInterval(draw, 33)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleSendMessage = () => {
+    if (inputMessage.trim() !== "") {
+      setMessages([...messages, { text: inputMessage, isBot: false }])
+      setInputMessage("")
+      // Simulate bot response
+      setTimeout(() => {
+        setMessages(prev => [...prev, { text: "Thank you for your message. How can I assist you further?", isBot: true }])
+      }, 1000)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white overflow-hidden relative">
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
+      
+      <div className="relative z-10">
+        <header className="flex justify-between items-center p-4">
+          <div className="text-green-500 text-2xl font-bold">MatrixCoder</div>
+          <nav>
+            <ul className="flex space-x-4">
+              <li><a href="#" className="hover:text-green-500">Home</a></li>
+              <li><a href="#" className="hover:text-green-500">Contact</a></li>
+              <li><a href="#" className="hover:text-green-500">About</a></li>
+              <li><a href="#" className="hover:text-green-500">ChatGPT</a></li>
+              <li><a href="#" className="hover:text-green-500">Voice Cloner</a></li>
+            </ul>
+          </nav>
+        </header>
+        
+        <main className="container mx-auto px-4 py-8">
+          <h1 className="text-5xl font-bold mb-4">Hi, my name is <span className="text-purple-500">John Doe.</span></h1>
+          <h2 className="text-3xl mb-4">And I am a <span className="text-red-500">Developer</span></h2>
+          <p className="mb-6 max-w-2xl">
+            I'm John Doe, a Full Stack Developer with a passion for continuous learning and growth. Specializing in JavaScript and proficient in frameworks like Next.js, I am dedicated to crafting robust web applications. My enthusiasm for exploring new technologies drives me to innovate and deliver efficient solutions. I thrive on challenges and strive for excellence in every project.
+          </p>
+          <button className="bg-green-500 text-black px-4 py-2 rounded hover:bg-green-600">Learn More!</button>
+          
+          <div className="flex space-x-4 mt-6">
+            <a href="#" className="text-gray-400 hover:text-white"><Github size={24} /></a>
+            <a href="#" className="text-gray-400 hover:text-white"><Facebook size={24} /></a>
+            <a href="#" className="text-gray-400 hover:text-white"><Twitter size={24} /></a>
+            <a href="#" className="text-gray-400 hover:text-white"><Instagram size={24} /></a>
+          </div>
+          
+          <h2 className="text-3xl font-bold mt-12 mb-6">Projects</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-bold mb-2">TheMatrix-MD</h3>
+              <p className="mb-4">A Multi Device WhatsApp Bot.</p>
+              <div className="flex space-x-2">
+                <span className="bg-blue-500 px-2 py-1 rounded text-xs">Node.JS</span>
+                <span className="bg-yellow-500 px-2 py-1 rounded text-xs">JavaScript</span>
+                <span className="bg-purple-500 px-2 py-1 rounded text-xs">Baileys</span>
+              </div>
+            </div>
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-bold mb-2">WHATSAPP-GPT</h3>
+              <p className="mb-4">A Simple WhatsApp Bot that Helps u to Integrate ChatGPT with Your WhatsApp account.</p>
+              <div className="flex space-x-2">
+                <span className="bg-blue-500 px-2 py-1 rounded text-xs">Node.JS</span>
+                <span className="bg-purple-500 px-2 py-1 rounded text-xs">Baileys</span>
+                <span className="bg-green-500 px-2 py-1 rounded text-xs">OpenAI</span>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+      
+      {/* AI Chat Bot */}
+      <div className="fixed bottom-4 right-4 z-50">
+        {!isChatOpen ? (
+          <button 
+            onClick={() => setIsChatOpen(true)}
+            className="bg-green-500 text-black p-4 rounded-full hover:bg-green-600"
+          >
+            Chat
+          </button>
+        ) : (
+          <div className="bg-gray-800 w-80 rounded-lg overflow-hidden">
+            <div className="bg-gray-700 p-4 flex justify-between items-center">
+              <span>Customer Support</span>
+              <button onClick={() => setIsChatOpen(false)} className="text-gray-400 hover:text-white">
+                &times;
+              </button>
+            </div>
+            <div className="h-80 overflow-y-auto p-4">
+              {messages.map((msg, index) => (
+                <div key={index} className={`mb-2 ${msg.isBot ? 'text-left' : 'text-right'}`}>
+                  <span className={`inline-block p-2 rounded-lg ${msg.isBot ? 'bg-gray-700' : 'bg-green-500 text-black'}`}>
+                    {msg.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 border-t border-gray-700">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                placeholder="Type a message..."
+                className="w-full p-2 rounded bg-gray-700 text-white"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
